@@ -1,0 +1,64 @@
+--- 
+- name: Install yum utils
+  yum:
+    name: yum-utils
+    state: latest
+
+- name: Install device-mapper-persistent-data
+  yum:
+    name: device-mapper-persistent-data
+    state: latest
+
+- name: Add official Docker GPG key
+  rpm_key:
+    key: "https://download.docker.com/linux/centos/gpg"
+    state: present
+
+- name: Add Docker repo
+  get_url:    
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install docker-ce & epel-release
+  yum:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: present
+  vars:  
+    packages:
+      - docker-ce
+      - epel-release 
+  when: ansible_distribution == 'CentOS'
+  
+- name: Install selinux container-selinux >= 2:2.74, docker-ce & epel-release 
+  yum:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: present
+  vars:
+    packages:
+    - http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.107-3.el7.noarch.rpm
+    - docker-ce
+    - https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  when: ansible_distribution == 'RedHat'
+
+- name: Install docker compose 
+  get_url: 
+    url : https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system }}-{{ ansible_userspace_architecture }}
+    dest: /usr/local/bin/docker-compose
+    mode: 'u+x,g+x'
+
+- name: Start Docker Daemon 
+  systemd: 
+    state: started
+    enabled: yes
+    name: docker
+- name: "Config files copy"
+  copy: 
+    src: docker-compose .yaml
+    dest: /data
+  copy: 
+    src: freeipa.conf
+    dest: /data/nginx
+- name: "Run Docker compose"
+  command: docker-compose -f /data/docker-compose.yaml up -d

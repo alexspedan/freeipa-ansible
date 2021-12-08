@@ -1,0 +1,11 @@
+---
+ipa_bind_addr: "{{ ansible_facts[second_interface_name].ipv4.address }}"
+ipa_hostname: freeipa.aimc.io
+
+# UPPERCASE
+ipa_realm: AIMC.IO
+ds_password: changeme
+admin_password: changeme
+
+freeipa_image_version: centos-8-4.8.7
+e-mail_admin: apedan@aimc.io

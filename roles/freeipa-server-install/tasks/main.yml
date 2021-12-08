@@ -1,0 +1,9 @@
+---
+- include: 05-create-path.yml
+  tags: [freeipa]
+- include: 10-compose-file.yml
+  tags:
+    - freeipa
+    - compose
+    - nginx
+    - letsencrypt

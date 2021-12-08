@@ -1,0 +1,12 @@
+# By Aleksey Pedan
+
+[Unit]
+Description=Timer to restart letsencrypt certificate 
+Requires=certificate-update.service
+
+[Timer]
+Unit=certificate-update.service
+OnCalendar=Mon *-*-* 09:32:00
+
+[Install]
+WantedBy=timers.target

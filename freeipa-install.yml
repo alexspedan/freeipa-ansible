@@ -1,0 +1,7 @@
+---
+- hosts: freeipa
+  become: yes
+  roles:
+    - freeipa-server-install
+    - firewall-configure
+    - systemd-configure
