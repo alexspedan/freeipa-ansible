@@ -1,7 +1,8 @@
 ---
-- hosts: freeipa
+- hosts: all
   become: yes
   roles:
     - freeipa-server-install
-    - firewall-configure
     - systemd-configure
+    - iptables-configure
+    - docker-comp-run

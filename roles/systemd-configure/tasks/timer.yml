@@ -1,7 +1,9 @@
 ---
 - name: certificate-update.timer
-  file: src=certificate-update.timer dest=/etc/systemd/system/certificate-update2.timer
+  template: 
+    src: certificate-update.timer.j2
+    dest: /etc/systemd/system/certificate-update.timer
   notify:
     - reload systemctl
 - name: certificate-update
-  service: name=certificate-update2.timer state=started enabled=yes
+  service: name=certificate-update.timer state=started enabled=yes daemon_reload=yes

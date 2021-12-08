@@ -1,0 +1,31 @@
+# Default policy
+- iptables:
+    chain: INPUT
+    policy: DROP
+    comment: DENY all icoming acept Docker and SSH 
+
+- iptables:
+    chain: FORWARD
+    policy: ACCEPT
+    comment: ALLOW all outgoing
+
+- iptables:
+    chain: OUTPUT
+    policy: ACCEPT
+    comment: ALLOW all outgoing
+
+- iptables:
+    chain: INPUT
+    source: 0.0.0.0/0
+    destination_port: 22
+    jump: ACCEPT
+    comment: allows inbound SSH
+
+- iptables:
+    chain: INPUT
+    source: 0.0.0.0/0
+    state: present
+    jump: ACCEPT
+    comment: allow RELATED,ESTABLISHED
+
+

@@ -1,8 +1,3 @@
 ---
-- include_tasks: rules.yml
+- include_tasks: default.yml
 
-- include_tasks: persist-debian.yml
-  when: ansible_os_family == 'Debian'
-
-- include_tasks: persist-redhat.yml
-  when: ansible_os_family == 'RedHat'

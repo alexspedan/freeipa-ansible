@@ -1,59 +1,31 @@
 ---
-firewall_v4_configure: true
-firewall_v6_configure: false
+# Default head (allow) rules
+iptables_default_head: |
+  -P INPUT ACCEPT
+  -P FORWARD ACCEPT
+  -P OUTPUT ACCEPT
+  -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+  -A INPUT -i lo -j ACCEPT
+  -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+  -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
 
-firewall_v4_flush_rules:
-  - -F
-  - -X
-  - -t raw -F
-  - -t raw -X
-  - -t nat -F
-  - -t nat -X
-  - -t mangle -F
-  - -t mangle -X
-firewall_v4_default_rules:
-  001 default policies:
-    - -P INPUT ACCEPT
-    - -P OUTPUT ACCEPT
-    - -P FORWARD DROP
-  002 allow loopback:
-    - -A INPUT -i lo -s 127.0.0.0/8 -d 127.0.0.0/8 -j ACCEPT
-  003 allow ping replies:
-    - -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
-    - -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
-  100 allow established related:
-    - -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-  200 allow ssh:
-    - -A INPUT -p tcp --dport ssh -j ACCEPT
-  999 drop everything:
-    - -P INPUT DROP
-firewall_v4_group_rules: {}
-firewall_v4_host_rules: {}
+# Default tail (deny) rules
+iptables_default_tail: |
+  -A INPUT -j REJECT
+  -A FORWARD -j REJECT
 
-firewall_v6_flush_rules:
-  - -F
-  - -X
-  - -t raw -F
-  - -t raw -X
-  - -t nat -F
-  - -t nat -X
-  - -t mangle -F
-  - -t mangle -X
-firewall_v6_default_rules:
-  001 default policies:
-    - -P INPUT ACCEPT
-    - -P OUTPUT ACCEPT
-    - -P FORWARD DROP
-  002 allow loopback:
-    - -A INPUT -i lo -s ::1/128 -d ::1/128 -j ACCEPT
-  003 allow ping replies:
-    - -A INPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT
-    - -A OUTPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT
-  100 allow established related:
-    - -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-  200 allow ssh:
-    - -A INPUT -p tcp --dport ssh -j ACCEPT
-  999 drop everything:
-    - -P INPUT DROP
-firewall_v6_group_rules: {}
-firewall_v6_host_rules: {}
+iptables_custom_rules: []
+# Example:
+# iptables_custom_rules:
+#   - name: open_port_12345 # 'iptables_custom_rules_' will be prepended to this
+#     rules: '-A INPUT -p tcp --dport 12345 -j ACCEPT'
+#     state: present
+#     weight: 40
+#     ipversion: 4
+#     table: filter
+#
+# NOTE: 'name', 'rules' and 'state' are required, others are optional.
+
+# By default this role deletes all iptables rules which are not managed by Ansible.
+# Set this to 'yes', if you want the role to keep unmanaged rules.
+iptables_keep_unmanaged: no

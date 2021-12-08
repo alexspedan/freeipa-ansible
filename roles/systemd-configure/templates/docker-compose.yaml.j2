@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  letsencrypt:
+      container_name: 'certbot-renew'
+      image: certbot/certbot:v1.17.0
+      command: sh -c "certbot certonly --webroot -w /tmp/freeipa -d fr$
+      entrypoint: ""
+      volumes:
+       - "/etc/letsencrypt:/etc/letsencrypt"
+       - "/tmp/freeipa:/tmp/freeipa"
+      environment:
+       - TERM=xterm

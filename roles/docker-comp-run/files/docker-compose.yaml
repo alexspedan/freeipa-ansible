@@ -18,8 +18,8 @@ services:
       - --no_hbac_allow
       - --no-ssh
       - --no-sshd
-      - --ds-password=****
-      - --admin-password=****
+      - --ds-password=secret123
+      - --admin-password=admin123
     restart: always
   nginx:
     image: nginx:1.15-alpine

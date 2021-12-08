@@ -1,14 +1,25 @@
 ---
+- name: "make folders"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '777'
+  with_items:
+    - "/opt/services"
 - name: "stop cert-update"
   systemd:
     state: stopped
     daemon_reload: yes
     name: certificate-update
-- name: certificate-update
-  file: src=certificate-update.service dest=/etc/systemd/system/certificate-update2.service owner=root group=root mode=0755
-- name: docker-compose for letsencrypt
-  file: src=docker-compose.yaml dest=/data/nginx
+- name: "certificate-update"
+  template:
+     src: certificate-update.service.j2
+     dest: /etc/systemd/system/certificate-update.service
+- name: "docker-compose for letsencrypt"
+  template:
+     src: docker-compose.yaml.j2
+     dest: /opt/services/docker-compose.yaml
   notify:
     - reload systemctl
 - name: certificate-update
-  service: name=certificate-update2.service state=started enabled=yes
+  service: name=certificate-update.service state=started enabled=yes daemon_reload=yes
