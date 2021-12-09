@@ -22,7 +22,7 @@
       - nmap
       - wget
       - iptables-services
-      - python-docker-py
+#      - python-docker-py
     state: present
   when: lcp_folder.stat.exists == false and lookup('env', 'LOCAL_DEPLOY') != "true"
 
@@ -69,15 +69,11 @@
 #    state: absent
 #  with_items: "{{ teams.blacklist.members }}"
 #  when: lookup('env', 'LOCAL_DEPLOY') != "true"
-
-- name: Adding user svc_gitlab to docker group
-  user:
-    name: svc_gitlab
-    groups: "docker"
-    append: "yes"
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
-
-####
+- name: Create docker group
+  group:
+    name: "docker"
+    state: present
+  when: lcp_folder.stat.exists == false and lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Set hostname
   shell: hostnamectl set-hostname {{ inventory_hostname }}

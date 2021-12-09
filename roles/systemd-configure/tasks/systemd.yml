@@ -6,20 +6,28 @@
     mode: '777'
   with_items:
     - "/opt/services"
-- name: "stop cert-update"
-  systemd:
-    state: stopped
-    daemon_reload: yes
-    name: certificate-update
-- name: "certificate-update"
+#- name: "stop cert-update"
+#  systemd:
+#    state: stopped
+#    daemon_reload: yes
+#    name: certificate-update
+- name: "copy certificate-update"
   template:
      src: certificate-update.service.j2
      dest: /etc/systemd/system/certificate-update.service
-- name: "docker-compose for letsencrypt"
+- name: " copy docker-compose for letsencrypt"
   template:
      src: docker-compose.yaml.j2
      dest: /opt/services/docker-compose.yaml
   notify:
     - reload systemctl
+- name: "systemd relad"
+  ansible.builtin.systemd:
+    daemon_reload: yes
+- name: "systemd relad"
+  ansible.builtin.systemd:
+    name: certificate-update
+    state: started
+    enabled: yes
 - name: certificate-update
   service: name=certificate-update.service state=started enabled=yes daemon_reload=yes

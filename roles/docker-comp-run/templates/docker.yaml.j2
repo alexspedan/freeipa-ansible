@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  freeipa:
+    image: freeipa/freeipa-server:centos-7
+    hostname: freeipa.aimc.io
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+    volumes:
+      - ./ipadata:/data:Z
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command:
+      - ipa-server-install
+      - --unattended
+      - --realm=AIMC.IO
+      - --no-ntp
+      - --mkhomedir
+      - --no_hbac_allow
+      - --no-ssh
+      - --no-sshd
+      - --ds-password=secret123
+      - --admin-password=admin123
+    restart: always
+  nginx:
+    image: nginx:1.15-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "389:389"
+    volumes:
+      - /data/nginx:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt
+  letsencrypt:
+      container_name: 'certbot-service'
+      image: certbot/certbot:v1.17.0
+      command: sh -c "certbot certonly --webroot -w /tmp/freeipa -d fr$
+      entrypoint: ""
+      volumes:
+       - "/etc/letsencrypt:/etc/letsencrypt"
+       - "/tmp/freeipa:/tmp/freeipa"
+      environment:
+       - TERM=xterm

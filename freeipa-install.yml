@@ -3,6 +3,7 @@
   become: yes
   roles:
     - freeipa-server-install
+    - geerlingguy.docker
+    - docker-comp-run
     - systemd-configure
     - iptables-configure
-    - docker-comp-run
