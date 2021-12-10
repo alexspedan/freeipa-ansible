@@ -28,12 +28,12 @@ services:
       - "443:443"
       - "389:389"
     volumes:
-      - /data/nginx:/etc/nginx/conf.d
+      - /opt/nginx:/etc/nginx/conf.d
       - /etc/letsencrypt:/etc/letsencrypt
   letsencrypt:
       container_name: 'certbot-service'
       image: certbot/certbot:v1.17.0
-      command: sh -c "certbot certonly --webroot -w /tmp/freeipa -d fr$
+      command: sh -c "certbot certonly --webroot -w /tmp/freeipa -d freeipa.aimc.io --text --agree-tos --email apedan@aimc.io --rsa-key-size 4096 --verbose --keep-until-expiring --preferred-challenges=http"
       entrypoint: ""
       volumes:
        - "/etc/letsencrypt:/etc/letsencrypt"

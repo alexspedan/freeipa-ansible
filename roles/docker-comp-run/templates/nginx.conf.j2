@@ -10,8 +10,8 @@ server {
     server_name freeipa.aimc.io;
         access_log  /var/log/nginx/freeipa-access.log;
         error_log   /var/log/nginx/freeipa-error.log;
-        ssl_certificate /etc/letsencrypt/live/freeipa.aimc.io/fullchai$
-        ssl_certificate_key /etc/letsencrypt/live/freeipa.aimc.io/priv$
+        ssl_certificate /etc/letsencrypt/live/freeipa.aimc.io/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/freeipa.aimc.io/privkey.pem;
   location / {
     proxy_pass              https://freeipa;
     proxy_set_header        Host freeipa.aimc.io;
@@ -43,8 +43,8 @@ location / {
 server {
 # LDAPS terminates here
         listen 636 ssl;
-        ssl_certificate         /etc/letsencrypt/live/freeipa.aimc.io/$
-        ssl_certificate_key     /etc/letsencrypt/live/freeipa.aimc.io/$
+        ssl_certificate /etc/letsencrypt/live/freeipa.aimc.io/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/freeipa.aimc.io/privkey.pem;
 location / {
     proxy_pass https://localhost:389;
     }

@@ -9,7 +9,7 @@ OnUnitInactiveSec=7d
 [Service]
 Type=simple
 RemainAfterExit=true
-WorkingDirectory=/data/nginx/
+WorkingDirectory=/opt/services
 ExecStart=/usr/local/bin/docker-compose -f /opt/services/docker-compose.yaml up
 
 [Install]
