@@ -1,0 +1,16 @@
+[Unit]
+Description=Service to update Letsencryps crtificate weekly
+Requires=docker.service
+After=docker.service
+
+[Timer]
+OnUnitInactiveSec=7d
+
+[Service]
+Type=simple
+RemainAfterExit=true
+WorkingDirectory=/opt/services
+ExecStart=/usr/local/bin/docker-compose -f /opt/services/docker-compose.yaml up
+
+[Install]
+WantedBy=multi-user.target

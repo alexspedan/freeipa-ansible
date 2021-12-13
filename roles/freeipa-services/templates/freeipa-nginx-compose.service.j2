@@ -1,0 +1,16 @@
+[Unit]
+Description=Service to keep nginx and freeipa running
+Requires=docker.service
+After=docker.service
+
+[Timer]
+OnUnitInactiveSec=7d
+
+[Service]
+Type=simple
+RemainAfterExit=true
+WorkingDirectory=/opt/
+ExecStart=/usr/local/bin/docker-compose -f /opt/docker-compose.yaml up
+
+[Install]
+WantedBy=multi-user.target

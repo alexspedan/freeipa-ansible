@@ -1,0 +1,95 @@
+---
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Start Docker Daemon 
+  systemd: 
+    state: started
+    enabled: yes
+    name: docker
+
+- name: "make folders"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '777'
+  with_items:
+    - "/opt/services"
+
+- name: Copy files to run services
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items: 
+    - { src: 'certificate-update.service.j2',dest: '/etc/systemd/system/certificate-update.service' }
+    - { src: 'certbot-docker-compose.yaml.j2',dest: '/opt/services/docker-compose.yaml' }
+    - { src: 'freeipa-nginx-compose.service.j2',dest: '/etc/systemd/system/freeipa-nginx-compose.service' }
+    - { src: 'docker.yaml.j2',dest: '/opt/docker-compose.yaml' }    
+
+- name: "systemd reload"
+  systemd:
+    daemon_reload: yes
+
+- name: "systemd certificate reload"
+  systemd:
+    name: certificate-update
+    state: started
+    enabled: yes
+
+- name: certificate-update
+  service: name=certificate-update.service state=started enabled=yes daemon_reload=yes
+
+- name: freeipa-nginx-compose
+  service: name=freeipa-nginx-compose.service state=started enabled=yes daemon_reload=yes
+
+- name: certificate-update.timer
+  template: 
+    src: certificate-update.timer.j2
+    dest: /etc/systemd/system/certificate-update.timer
+  notify:
+    - reload systemctl
+
+- name: certificate-update
+  service: name=certificate-update.timer state=started enabled=yes daemon_reload=yes
+
+# IPTABLE Default policy
+- iptables:
+    chain: INPUT
+    policy: ACCEPT
+    comment: allow all icoming acept Docker and SSH 
+
+- iptables:
+    chain: FORWARD
+    policy: ACCEPT
+    comment: ALLOW all outgoing
+
+- iptables:
+    chain: OUTPUT
+    policy: ACCEPT
+    comment: ALLOW all outgoing
+
+- iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 22
+    jump: ACCEPT
+    comment: allows inbound SSH
+    action: insert
+    rule_num: 1
+
+- iptables:
+    chain: INPUT
+    state: present
+    jump: ACCEPT
+    comment: allow RELATED,ESTABLISHED
+
+#- iptables:
+#    chain: INPUT
+#    policy: DROP
+#    comment: DENY all icoming acept Docker and SSH 
+
+- name: IPTABLES
+  service: name=iptables.service state=started enabled=yes daemon_reload=yes

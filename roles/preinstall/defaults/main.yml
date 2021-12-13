@@ -4,8 +4,5 @@ ipa_hostname: freeipa.aimc.io
 
 # UPPERCASE
 ipa_realm: AIMC.IO
-ds_password: changeme
-admin_password: changeme
-
-freeipa_image_version: centos-8-4.8.7
+freeipa_image_version: centos-7-4.6.8
 e-mail_admin: apedan@aimc.io

@@ -8,7 +8,6 @@
   package:
     name: epel-release
     state: present
-  when: lcp_folder.stat.exists == false and lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Install a base packages
   package:
@@ -24,13 +23,11 @@
       - iptables-services
 #      - python-docker-py
     state: present
-  when: lcp_folder.stat.exists == false and lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Add groups
   group:
     name: aimc
     state: present
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Sudo access
   copy:
@@ -43,7 +40,6 @@
     owner: root
     group: root
     mode: 0440
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Add team member
   user:
@@ -54,6 +50,7 @@
   with_items: "{{ teams.aimc.members }}"
   when: lookup('env', 'LOCAL_DEPLOY') != "true"
   ignore_errors: True
+
 - name: Set authorized key
   authorized_key:
     user: "{{ item.name }}"
@@ -67,34 +64,48 @@
   group:
     name: "docker"
     state: present
-  when: lcp_folder.stat.exists == false and lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Set hostname
   shell: hostnamectl set-hostname freeipa.aimc.io
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Ensure hostname is in /etc/hosts
   lineinfile:
     dest: /etc/hosts
     regexp: "^{{ ansible_default_ipv4.address }}.+$"
     line: "{{ ansible_default_ipv4.address }} {{ inventory_hostname }}"
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Add jounald rotation rule
   lineinfile:
     path: /etc/systemd/journald.conf
     line: SystemMaxUse=1g
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
 
 - name: Add docker images prune command to crontab
   lineinfile:
     path: /etc/crontab
     line: 0 3 * * SUN root /bin/docker system prune --volumes -a -f
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
 
-- name: Copy syslog logrotate configuration
+#Create folders
+
+- name: Create base folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '777'
+  with_items:
+    - "/opt/freeipa"
+    - "/opt/nginx"
+    - "/opt/services"
+    - "/tmp/freeipa"
+#Copy files
+
+- name: Copy files
   template:
-    src: ./templates/configs/logrotate_syslog.j2
-    dest: "/etc/logrotate.d/syslog"
-  when: lookup('env', 'LOCAL_DEPLOY') != "true"
-
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  vars:
+    - local_run: "{{ item.local_run }}"
+  with_items:
+    - { src: 'docker.yaml.j2',dest: '/opt/docker-compose.yaml' }
+    - { src: './templates/configs/logrotate_syslog.j2',dest: '/etc/logrotate.d/syslog' }
+    - { src: 'nginx.conf.j2',dest: '/opt/nginx/freeipa.conf' }
+  ignore_errors: True
