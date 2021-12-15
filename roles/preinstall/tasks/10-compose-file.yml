@@ -94,8 +94,10 @@
   with_items:
     - "/opt/freeipa"
     - "/opt/nginx"
+    - "/opt/nginx/conf.d"    
     - "/opt/services"
     - "/tmp/freeipa"
+    - "/opt/nginx/stream"
 #Copy files
 
 - name: Copy files
@@ -107,5 +109,8 @@
   with_items:
     - { src: 'docker.yaml.j2',dest: '/opt/docker-compose.yaml' }
     - { src: './templates/configs/logrotate_syslog.j2',dest: '/etc/logrotate.d/syslog' }
-    - { src: 'nginx.conf.j2',dest: '/opt/nginx/freeipa.conf' }
+    - { src: 'freeipa.conf.j2',dest: '/opt/nginx/conf.d/freeipa.conf' }
+    - { src: 'freeipa.stream.j2',dest: '/opt/nginx/stream/freeipastream.conf' }
+    - { src: 'nginx.conf.j2',dest: '/opt/nginx/nginx.conf' }
+    - { src: 'mime.types.j2',dest: '/opt/nginx/mime.types' }
   ignore_errors: True

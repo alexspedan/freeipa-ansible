@@ -2,12 +2,12 @@
 - name: Start Docker service
   service:
     name: docker
-    state: started
+    state: restarted
     enabled: yes
 
 - name: Start Docker Daemon 
   systemd: 
-    state: started
+    state: restarted
     enabled: yes
     name: docker
 
@@ -27,7 +27,9 @@
     - { src: 'certificate-update.service.j2',dest: '/etc/systemd/system/certificate-update.service' }
     - { src: 'certbot-docker-compose.yaml.j2',dest: '/opt/services/docker-compose.yaml' }
     - { src: 'freeipa-nginx-compose.service.j2',dest: '/etc/systemd/system/freeipa-nginx-compose.service' }
-    - { src: 'docker.yaml.j2',dest: '/opt/docker-compose.yaml' }    
+    - { src: 'docker.yaml.j2',dest: '/opt/docker-compose.yaml' }
+    - { src: 'letsencrypt-watcher.path.j2',dest: '/etc/systemd/system/letsencrypt-watcher.path' }
+    - { src: 'restarter-freeipa.service.j2',dest: '/etc/systemd/system/restarter-freeipa.service' }
 
 - name: "systemd reload"
   systemd:
@@ -54,6 +56,12 @@
 
 - name: certificate-update
   service: name=certificate-update.timer state=started enabled=yes daemon_reload=yes
+
+- name: Freeipa restatrter after update
+  service: name=restarter-freeipa.service state=started enabled=yes daemon_reload=yes
+
+- name: Letsencrypt watcher
+  service: name=letsencrypt-watcher.path state=started enabled=yes daemon_reload=yes
 
 # IPTABLE Default policy
 - iptables:

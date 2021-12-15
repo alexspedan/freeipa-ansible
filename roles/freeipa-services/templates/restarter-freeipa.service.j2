@@ -1,0 +1,10 @@
+[Unit]
+Description=freeipa restarter
+After=freeipa-nginx-compose.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/docker-compose -f /opt/docker-compose.yaml restart
+
+[Install]
+WantedBy=multi-user.target

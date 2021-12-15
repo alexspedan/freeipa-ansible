@@ -1,0 +1,14 @@
+
+    server 
+    {
+        listen 389;
+        proxy_pass freeipa.aimc.io:389;
+    }
+
+    server 
+    {
+        listen 636 ssl;
+        proxy_pass freeipa.aimc.io:389;
+            ssl_certificate /etc/letsencrypt/live/freeipa.aimc.io/fullchain.pem;
+            ssl_certificate_key /etc/letsencrypt/live/freeipa.aimc.io/privkey.pem;
+    }    
